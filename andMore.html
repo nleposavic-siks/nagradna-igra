@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Elite Rewards Showcase</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-silver: #e6e6e6;
+        --navy: #001f58;
+        --gold: #ffcb05;
+        /* A crisper gold for accents */
+        --gold-sharp: #e6b800;
+        --glass-header: rgba(230, 230, 230, 0.9);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* --- THE SNAP ENGINE --- */
+      html,
+      body {
+        height: 100%;
+        background-color: var(--bg-silver);
+        font-family: "Montserrat", sans-serif;
+        color: var(--navy);
+        scroll-snap-type: y mandatory;
+        overflow-y: scroll;
+        scrollbar-width: none;
+      }
+
+      body::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* --- STICKY HEADER --- */
+      header {
+        position: fixed;
+        top: 50%; /* Start centered */
+        left: 0;
+        width: 100%;
+        z-index: 100;
+        transform: translateY(-50%);
+        transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+        pointer-events: none;
+        text-align: center;
+      }
+
+      /* State when scrolling starts or load finishes */
+      body.is-scrolled header {
+        top: 20px;
+        transform: translateY(0) scale(0.7);
+      }
+
+      .main-title {
+        font-weight: 900;
+        text-transform: uppercase;
+        line-height: 1;
+        letter-spacing: -1px;
+        font-size: clamp(2rem, 9vw, 3.5rem);
+      }
+
+      .outline {
+        color: transparent;
+        -webkit-text-stroke: 1.2px var(--navy);
+      }
+
+      /* --- SECTION & GRID --- */
+      section {
+        height: 100svh;
+        width: 100%;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 15px 0 15px;
+        position: relative;
+      }
+
+      .prize-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        width: 100%;
+        max-width: 450px;
+      }
+
+      /* --- THE CARDS --- */
+      .prize-card {
+        background: white;
+        border: 1px solid var(--navy);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        opacity: 0;
+        transform: scale(0.85);
+        transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* Fixed fade overlay at top of viewport */
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 180px;
+        background: linear-gradient(
+          to bottom,
+          var(--bg-silver) 0%,
+          var(--bg-silver) 60px,
+          transparent 180px
+        );
+        z-index: 50;
+        pointer-events: none;
+      }
+
+      /* Fade out cards as they approach the header */
+      section {
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          transparent 80px,
+          black 160px,
+          black 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          transparent 80px,
+          black 160px,
+          black 100%
+        );
+      }
+
+      /* Animation when section becomes visible */
+      section.is-visible .prize-card {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      section.is-visible .prize-card:nth-child(2) {
+        transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+      }
+
+      .qty-tag {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: var(--gold);
+        color: var(--navy);
+        padding: 5px 10px;
+        font-weight: 900;
+        font-size: 1rem;
+        z-index: 5;
+      }
+
+      .img-wrapper {
+        width: 100%;
+        height: 380px;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .info-box {
+        padding: 12px 8px;
+        background: #fff;
+        border-top: 3px solid var(--gold);
+        min-height: 55px;
+        display: flex;
+        align-items: center;
+      }
+
+      .prize-name {
+        font-size: 1rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        line-height: 1.2;
+      }
+
+      /* --- NEW CRISPY SEXY BUTTON --- */
+      .next-btn {
+        position: fixed;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        /* Layout for icon and text */
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        /* The "Crispy" Look */
+        background: rgba(255, 255, 255, 0.95); /* Almost opaque glass */
+        color: var(--navy);
+        border: 1px solid var(--navy); /* Sharp, thin border */
+        border-radius: 6px; /* The "bit of radius" */
+
+        /* Sleeker Typography */
+        padding: 12px 28px;
+        font-weight: 600; /* Semi-bold, much sleeker than 900 */
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+
+        cursor: pointer;
+        /* Smooth, premium transition */
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+        /* Subtle initial shadow */
+        box-shadow: 0 5px 15px rgba(0, 31, 88, 0.1);
+
+        opacity: 0;
+        pointer-events: none;
+        z-index: 100;
+      }
+
+      /* Styling the new SVG icon */
+      .btn-icon {
+        width: 18px;
+        height: 18px;
+        stroke: var(--navy);
+        transition: transform 0.3s ease, stroke 0.3s ease;
+      }
+
+      body.show-btn .next-btn {
+        opacity: 1;
+        pointer-events: all;
+        bottom: 50px; /* Slight entry animation lift */
+      }
+
+      /* Hover State - The "Sexy" Part */
+      .next-btn:hover {
+        transform: translateX(-50%) translateY(-4px); /* Premium lift effect */
+        background: white;
+        border-color: var(--gold-sharp); /* Border turns crisp gold */
+        /* A subtle gold glow mixed with navy shadow */
+        box-shadow: 0 12px 25px rgba(0, 31, 88, 0.15),
+          0 0 20px rgba(255, 203, 5, 0.25);
+      }
+
+      .next-btn:hover .btn-icon {
+        stroke: var(--gold-sharp); /* Icon turns gold */
+        transform: translateY(2px); /* Subtle icon animation */
+      }
+
+      /* Active Click State - Tonal Change */
+      .next-btn:active {
+        transform: translateX(-50%) translateY(0px); /* Pressed back down */
+        background: #e9ecef; /* Tonal change: slightly darker/greyer white */
+        border-color: var(--navy); /* Border goes back to navy */
+        /* Inset shadow makes it feel pressed *into* the screen */
+        box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.1s ease; /* Quicker response on click */
+      }
+
+      .next-btn:active .btn-icon {
+        stroke: var(--navy);
+        transform: translateY(4px);
+      }
+
+      /* --- INDICATORS --- */
+      .scroll-hint {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 0.6rem;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        font-weight: 800;
+        opacity: 0.3;
+        transition: opacity 0.5s;
+      }
+
+      body.is-scrolled .scroll-hint {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="header">
+      <h1 class="main-title">
+        I JOŠ<br />MNOGO<br /><span class="outline">DRUGIH</span><br />POKLONA
+      </h1>
+    </header>
+
+    <section class="prize-row" id="first-prize-row">
+      <div class="prize-grid">
+        <div class="prize-card">
+          <div class="qty-tag">1X</div>
+          <div class="img-wrapper">
+            <img
+              src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600"
+              alt="P1"
+            />
+          </div>
+          <div class="info-box">
+            <h2 class="prize-name">Porsche 911 GT3</h2>
+          </div>
+        </div>
+        <div class="prize-card">
+          <div class="qty-tag">1X</div>
+          <div class="img-wrapper">
+            <img
+              src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=600"
+              alt="P2"
+            />
+          </div>
+          <div class="info-box">
+            <h2 class="prize-name">BMW M4 Competition</h2>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="prize-row">
+      <div class="prize-grid">
+        <div class="prize-card">
+          <div class="qty-badge qty-tag">5X</div>
+          <div class="img-wrapper">
+            <img
+              src="https://images.unsplash.com/photo-1547996160-81dfa63595dd?auto=format&fit=crop&w=600"
+              alt="W1"
+            />
+          </div>
+          <div class="info-box">
+            <h2 class="prize-name">Audemars Piguet</h2>
+          </div>
+        </div>
+        <div class="prize-card">
+          <div class="qty-badge qty-tag">5X</div>
+          <div class="img-wrapper">
+            <img
+              src="https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=600"
+              alt="W2"
+            />
+          </div>
+          <div class="info-box">
+            <h2 class="prize-name">Omega Speedmaster</h2>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="prize-row">
+      <div class="prize-grid">
+        <div class="prize-card">
+          <div class="qty-badge qty-tag">10X</div>
+          <div class="img-wrapper">
+            <img
+              src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600"
+              alt="T1"
+            />
+          </div>
+          <div class="info-box"><h2 class="prize-name">iPhone 16 Pro</h2></div>
+        </div>
+        <div class="prize-card">
+          <div class="qty-badge qty-tag">20X</div>
+          <div class="img-wrapper">
+            <img
+              src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=600"
+              alt="T2"
+            />
+          </div>
+          <div class="info-box"><h2 class="prize-name">iPad Pro M4</h2></div>
+        </div>
+      </div>
+    </section>
+
+    <button class="next-btn" onclick="scrollToNext()">
+      <span>Istraži Još</span>
+      <svg
+        class="btn-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+
+    <div class="scroll-hint">Skroluj za nagrade ↓</div>
+
+    <script>
+      const body = document.body;
+      const firstRow = document.getElementById("first-prize-row");
+      let hasLoaded = false;
+
+      // LOAD CHOREOGRAPHY
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          body.classList.add("is-scrolled");
+        }, 1000);
+
+        setTimeout(() => {
+          firstRow.classList.add("is-visible");
+          hasLoaded = true; // Mark that initial animation is complete
+        }, 1800);
+      });
+
+      // OBSERVER FOR ALL ROWS
+      const observerOptions = {
+        threshold: 0.4,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          // Don't let observer affect first row until initial animation completes
+          if (entry.target.id === "first-prize-row" && !hasLoaded) {
+            return;
+          }
+
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            body.classList.add("show-btn");
+          } else {
+            // Keep first row visible unless scrolled far away
+            if (
+              entry.target.id === "first-prize-row" &&
+              entry.boundingClientRect.top > window.innerHeight
+            ) {
+              entry.target.classList.remove("is-visible");
+            } else if (entry.target.id !== "first-prize-row") {
+              entry.target.classList.remove("is-visible");
+            }
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll("section").forEach((section) => {
+        observer.observe(section);
+      });
+
+      // FUNKCIJA ZA GLATKO SKROLOVANJE
+      function scrollToNext() {
+        const sections = document.querySelectorAll("section");
+        let currentIndex = -1;
+
+        sections.forEach((section, index) => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top >= -10 && rect.top <= 10) {
+            currentIndex = index;
+          }
+        });
+
+        if (currentIndex >= 0 && currentIndex < sections.length - 1) {
+          sections[currentIndex + 1].scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
